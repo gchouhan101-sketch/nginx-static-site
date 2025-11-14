@@ -1,0 +1,28 @@
+name: CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t nginx-static .
+
+      - name: Run container
+        run: docker run -d -p 8080:80 --name test-nginx nginx-static
+
+      - name: Smoke test
+        run: |
+          sleep 3
+          curl -s http://localhost:8080 | grep "Hello from Team Velocity"
+
+      - name: Cleanup
+        run: docker rm -f test-nginx
+
